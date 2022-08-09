@@ -1,0 +1,70 @@
+configurar eslint para que presente los errores = "extends": ["eslint:recommended", "next/core-web-vitals"]
+
+despues de hacer el layout, simplemente comenzamos a agregar los productos
+
+const { query } = useRouter();
+const { id } = query;
+
+//funcionalida boton de compras
+1. crear contexto, configurar estado incial, usar funcion reducer. lo primero es verificar lo que genera el action.payload guardandolo en una variable
+2. crear variable verificando si existe el articulo seleccionado mapeando el estado del articulos de las compras
+buscando si por cada articulo mapeado su slug coincide con el slug del action.payload
+3. si existe ya el articulo dentro de las compras, se vuelve a mapear por cada articulo para poder revisar si
+el nombre del articulo mapeado es igual al nombre del articulo requerido. si es asi, se agrega articulo requerido
+si no es asi se devuelve el mismo articulo para aumentar su numero
+4. si el articulo requerido no está dentro de las compras, se devueve un array, copiando los articulos que ya estan 
+en el estado [...state.compras.articulo] y agregando el nuevo articulo requerido articulo = action.payload -> [...state.compras.articulo, articulo]
+5. se retorna un obj con una copia del estado, agregando en compras un nuevo arreglo con los datos que ya estan en el estado de las compras
+y colocando el articulo a comprar {...state, compra:{...state.compra, nuevacompra}}
+
+export function StoreProvider({ children }) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const value = { state, dispatch };
+
+  return <Store.Provider value={value}>{children}</Store.Provider>;
+}
+
+const {state, dispatch} = useContext(Store)
+usar el contexto en el boton de agregar, y tambien al mostrar cantidad en el carrito
+para el boton de agregar: dispatch({type: 'agregar_articulo, payload: {...product, cantidad: 1}})
+
+y para mostrar la cantidad en el layout, en el boton de compras agregar:
+                  {compra.articulos.length > 0 && (
+                    <span className='ml-1 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white'>
+                      {compra.articulos.reduce((a, c) => a + c.cantidad, 0)}
+                    </span>
+                  )}
+a = valor anterior, c = valor actual, 0 = inicial, si a fuera 1 y c.cantidad fuera 2, el 0 se convierte en 3
+
+si aun no se agrega ningun articulo , se muestra el span, 
+
+//pagina de compra
+una tabla donde se renderiza los productos elegidos, en el cuerpo de la tabla se itera por el arreglo de articulos
+y se agrega funcion al boton eliminar: se debe usar un disparador de estado con dispatch({type:'delete_articulo, payload: articulo})
+- type debe ser definido en el swicth del reduce donde está el contexto
+- usar un filtro para buscar si el slug que existe en el arreglo de compra, es deferente al slug del action.payload. esto hará que la variable creada
+contenga todos los articulos del estado excepto el articulo con el slug/id del articulo enviado con action.payload
+luego solo hace falta retornar todos los datos incluyendo los existentes
+
+para renderizar parte del total:
+otro div debajo del div que contiene la tabla, contendrá una ul> li > div. irá subtotal que sera un reduce de la cantidad * el precio
+otra li contendrá boton de pago con estilos y un onclick redirigiendo a pagina de comprando
+
+//numero de articulos:
+[...Array(articulos.cantidad).key()] crea un arreglo con el numero de objetos
+//seleccionar cantidad de articulos pa comprar
+                      <select value={x.cantidad} onChange={(e)=>handlerUpdateCompra(x, e.target.value)}>
+                        {[Array(x.cantidad).keys()].map((vl) => (
+                          <option key={vl + 1} value={vl + 1}>
+                            {vl + 1}
+                          </option>
+                        ))}
+                      </select>
+en la funcion de actualizar se debe cambiar la cantidad de string a numero
+handlerUpdateCompra(articulo, ctd){
+  const cantidad = Numb(ctd)
+}
+luego se debe hacer dispatch({type:'AGREGAR_ARTICULO, payload: {...articulo, cantidad}}) seleccionada por el usuario
+
+//guardar articulos en cookies:
+-instalar js-cookie 
