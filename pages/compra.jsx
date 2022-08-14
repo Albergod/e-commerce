@@ -5,6 +5,9 @@ import Image from "next/image";
 import Layout from "../components/Layout";
 import { Store } from "./data/contex";
 import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const CompraScreen = () => {
   const route = useRouter();
@@ -17,8 +20,13 @@ const CompraScreen = () => {
     dispatch({ type: "ELIMINAR_ARTICULO", payload: item });
   };
 
-  function handlerUpdateCompra(item, ctd) {
+  async function handlerUpdateCompra(item, ctd) {
     const cantidad = Number(ctd);
+
+    const { data } = await axios.get(`/api/products/${item._id}`);
+    if (data.cantidadEnVenta < cantidad) {
+      return toast.error("Lo siento, éste producto ya agotó");
+    }
 
     dispatch({ type: "AGREGAR_ARTICULO", payload: { ...item, cantidad } });
   }
@@ -91,7 +99,7 @@ const CompraScreen = () => {
               <li>
                 <button
                   className='primary-button w-full'
-                  onClick={() => route.push("/comprando")}
+                  onClick={() => route.push("login?redirect=/comprando")} //si hay login de user, se enviará a comprando
                 >
                   Comprar
                 </button>
@@ -104,4 +112,4 @@ const CompraScreen = () => {
   );
 };
 
-export default CompraScreen;
+export default dynamic(() => Promise.resolve(CompraScreen), { ssr: false });

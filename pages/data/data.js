@@ -1,8 +1,23 @@
+import bcrypt from "bcryptjs";
 export const data = {
+  users: [
+    {
+      name: "Alber",
+      email: "admin@example.com",
+      password: bcrypt.hashSync("123456"),
+      isAdmin: true,
+    },
+    {
+      name: "Juana",
+      email: "user@example.com",
+      password: bcrypt.hashSync("123456"),
+      isAdmin: false,
+    },
+  ],
   products: [
     {
       nombre: "Camiseta lacoste",
-      slug: "lascoste-camiseta",
+      slug: "lascoste-camiset",
       categoria: "camisetas",
       imagen: "/img/shirt1.jpg",
       precio: 70,

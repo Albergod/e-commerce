@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-const Cards = ({ product }) => {
+const Cards = ({ product, handleSubmit }) => {
   return (
     <div className='card'>
       <Link href={`/product/${product.slug}`}>
@@ -17,7 +17,11 @@ const Cards = ({ product }) => {
         <p className='mb-2'>{product.marca}</p>
         <p className='mb-2'>${product.precio}</p>
 
-        <button className='primary-button' type='button'>
+        <button
+          className='primary-button'
+          type='button'
+          onClick={() => handleSubmit(product)}
+        >
           Agregar
         </button>
       </div>

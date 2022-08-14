@@ -1,12 +1,12 @@
 import { createContext, useReducer } from "react";
-
+import Cookies from "js-cookie";
 export const Store = createContext();
 
 //inicialmente no habran articulos en las compras
 const initialState = {
-  compra: {
-    articulos: [],
-  },
+  compra: Cookies.get("compra")
+    ? JSON.parse(Cookies.get("compra"))
+    : { articulos: [], ShippingAdress: {} },
 };
 
 function reducer(state, action) {
@@ -27,6 +27,7 @@ function reducer(state, action) {
             x.nombre === exitArticle.nombre ? articulo : x
           )
         : [...state.compra.articulos, articulo];
+      Cookies.set("compra", JSON.stringify({ ...state.compra, articulos }));
       return {
         ...state,
         compra: { ...state.compra, articulos },
@@ -37,7 +38,42 @@ function reducer(state, action) {
       const articulos = state.compra.articulos.filter(
         (x) => x.slug !== action.payload.slug
       );
+      Cookies.set("compra", JSON.stringify({ ...state.compra, articulos }));
       return { ...state, compra: { ...state.compra, articulos } };
+    }
+
+    case "RESET_COMPRA": {
+      return {
+        ...state,
+        compra: {
+          articulos: [],
+          ShippingAdress: { location: {} },
+          PaymentMethod: "",
+        },
+      };
+    }
+
+    // case "LIMPIAR": {
+    //   return { ...state, compra: { ...state.compra, articulos: [ ] } };
+    // }
+
+    case "GUARDAR_DATOS": {
+      return {
+        ...state,
+        compra: {
+          ...state.compra,
+          ShippingAdress: { ...state.compra.ShippingAdress, ...action.payload },
+        },
+      };
+    }
+    case "GUARDAR_PAGO": {
+      return {
+        ...state,
+        compra: {
+          ...state.compra,
+          PaymentMethod: action.payload,
+        },
+      };
     }
     default:
       return state;

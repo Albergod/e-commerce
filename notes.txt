@@ -68,3 +68,72 @@ luego se debe hacer dispatch({type:'AGREGAR_ARTICULO, payload: {...articulo, can
 
 //guardar articulos en cookies:
 -instalar js-cookie 
+usar Cookie.get('compra') en el estado inicial del contexto= initialState={compra:{Cookie.get('compra')}}
+convertir a json ya que no envia los datos en formato json()
+
+Cookies.set("compra", JSON.stringify({ ...state.compra, articulos }));
+usar esa linea de codigo para guardar y eliminar articulo
+
+IMPORTANT
+la ruta de compras debe ser dinámica para poder guardar las cookies en el backend por lo tanto
+en la pagina de compras se debe usar una funcion de next llamada dinamyc 
+export default dynamic(() => Promise.resolve(CompraScreen), { ssr: false });
+se debe utilizar para que la ruta deje de ser ssr y no se cargue por defecto, tambien es necesario ésta conf de eslinc
+  "env": { "browser": true, "node": true, "es6": true },
+
+en en layout sucede lo mismo, que tenemos articulos comprados del lado del cliente pero en el backend no existe
+por lo cual se usa un useeffect que renderizara un useState el cual tendrá el numero de articulos comprados
+
+//PAGINA DE INGRESO
+
+usar react-hook-forma
+
+importar {handleSubmit, register, formState:{errors}} = useForm()
+sintaxis de uso para cada input {...register('email'), {required: 'Por favor ingrese un email', }}
+usar patron de validacion {required:'', pattern:{value:'', message:''}}
+
+//conectat a mongo db
+//crear user model
+//crear api de conexion con mongodb
+
+//LOGIN con api
+1.instalar next-auth, crear folder auth en la carpeta api
+2. importar Next-Auth, crear instancia de nextauth, acepta parametro de:
+session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user?._id) token._id = user._id;
+      if (user?.isAdmin) token.isAdmin = user.isAdmin;
+      return token;
+    },
+    async session(session, toke) {
+      if (toke?._id) session.user._id = toke._id;
+      if (toke?.isAdmin) session.user.isAdmin = toke.isAdmin;
+      return session;
+    },
+  },
+  providers: [
+    CredentialsProvider({
+      async authorize(credentials) {
+        await db.connect();
+        const user = await User.findOne({ email: credentials.email });
+        await db.disconnect();
+        if (user && bcryptjs.compareSync(credentials.password, user.password)) {
+          //contraseña correcta
+          return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            image: "f",
+            isAdmin: user.isAdmin,
+          };
+        }
+      },
+    }),
+  ],
+  importar en la pagina del login: sigin de nextauth, 
+
+  //menú en perfil => headlessui 
+
